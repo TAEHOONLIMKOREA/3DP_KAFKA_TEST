@@ -2,8 +2,9 @@
 from time import sleep
 from json import dumps
 import json
-from kafka import KafkaProducer
 from kafka import KafkaConsumer
+from helper import kafka_helper
+from datetime import datetime
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -16,13 +17,26 @@ if __name__ == '__main__':
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 
-    my_producer = KafkaProducer(
-        bootstrap_servers=['keties.iptime.org:55592'],
-        value_serializer=lambda x: dumps(x).encode('utf-8')
-    )
-
+    my_kafka_client = kafka_helper.KafkaClient()
     # Send messages
-    my_producer.send('msgtest', 'Hello World!!')
+    datetime_now = datetime.now()
+    datetime_str = datetime_now.strftime("%Y%m%d_%H%M%S")
+    msg = {"Time": datetime_str,
+           "BuildName": self.KDIP.BuildName,
+           "BuildState": "start"}
+    my_kafka_client.InsertMessage('msgtest', msg)
+
+    for i in range(10):
+        datetime_now = datetime.now()
+        datetime_str = datetime_now.strftime("%Y%m%d_%H%M%S")
+        msg = {"Time": datetime_str,
+               "Param": "TEST",
+               "Value": val,
+               "LayerIdx": self.KDIP.CurrentLayer,
+               "tag": "Environment"}
+        self.KDIP.KafkaClient.InsertMessage("msgtest", msg)
+
+
 
     # Kafka broker에 연결합니다.
     consumer = KafkaConsumer(
