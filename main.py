@@ -20,8 +20,6 @@ if __name__ == '__main__':
 
     grpc_client = grpc_helper.GrpcClient()
 
-
-
     my_kafka_client = kafka_helper.KafkaClient()
     # Send messages
     datetime_now = datetime.now()
