@@ -4,6 +4,7 @@ from json import dumps
 import json
 from kafka import KafkaConsumer
 from helper import kafka_helper
+from helper import grpc_helper
 from datetime import datetime
 
 def print_hi(name):
@@ -16,6 +17,10 @@ if __name__ == '__main__':
     print_hi('PyCharm')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+    grpc_client = grpc_helper.GrpcClient()
+
+
 
     my_kafka_client = kafka_helper.KafkaClient()
     # Send messages
@@ -32,6 +37,7 @@ if __name__ == '__main__':
         msg = {"Time": datetime_str,
                "Param": "TEST",
                "Value": val,
+
                "LayerIdx": self.KDIP.CurrentLayer,
                "tag": "Environment"}
         self.KDIP.KafkaClient.InsertMessage("msgtest", msg)
