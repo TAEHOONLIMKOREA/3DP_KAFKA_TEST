@@ -9,6 +9,7 @@ __pycache__/
 KDMPgRPC_pb2.py
 KDMPgRPC_pb2_grpc.py
 .idea/
+Test_Image_File/
 
 # Distribution / packaging
 .Python

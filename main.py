@@ -6,6 +6,10 @@ from kafka import KafkaConsumer
 from helper import kafka_helper
 from helper import grpc_helper
 from datetime import datetime
+import base64
+import cv2
+import numpy as np
+
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -23,18 +27,22 @@ if __name__ == '__main__':
 
     scn_img, depo_img = grpc_client.GetVisionData(1)
 
-    scanning_vision_msg = {"LayerNum": str(scn_img.LayerNum),
+    scanning_vision_msg = {"LayerNum": scn_img.LayerNum,
                            "ImageClass": "scanning",
-                           "data": scn_img.Datas}
+                           "ImageData": None}
 
-    deposition_vision_msg = {"LayerNum": str(depo_img.LayerNum),
+    deposition_vision_msg = {"LayerNum": depo_img.LayerNum,
                              "ImageClass": "scanning",
-                             "data": depo_img.Datas}
+                             "ImageData": None}
+    #
+    scanning_vision_msg['ImageData'] = base64.b64encode(scn_img.Datas).decode('utf-8')
+    deposition_vision_msg['ImageData'] = base64.b64encode(depo_img.Datas).decode('utf-8')
+
     # Send messages
-    my_kafka_client.InsertMessage('msgtest_large', depo_img.Datas)
+    my_kafka_client.InsertMessage('msgtest_large', deposition_vision_msg)
 
 
-    # # Send messages
+    # Send messages
     # datetime_now = datetime.now()
     # datetime_str = datetime_now.strftime("%Y%m%d_%H%M%S")
     # msg = {"Time": datetime_str,
@@ -52,20 +60,32 @@ if __name__ == '__main__':
     #            "LayerIdx": i,
     #            "tag": "Environment"}
     #     my_kafka_client.InsertMessage("msgtest", msg)
-    #
-    # my_kafka_client.CloseProducer()
-    #
-    # # Kafka broker에 연결합니다.
+
+    my_kafka_client.CloseProducer()
+
+    # Kafka broker에 연결합니다.
     consumer = KafkaConsumer(
-        'msgtest_large',  # topic 이름
         bootstrap_servers=['keties.iptime.org:55592'],
         auto_offset_reset='earliest',  # 가장 처음부터 메시지를 받습니다.
         enable_auto_commit=True,  # 자동으로 offset을 commit합니다.
         value_deserializer=lambda x: json.loads(x.decode('utf-8'))
     )
 
-    for message in consumer:
-        print(f"Received message: {message.value}")
+    topics = consumer.topics()
+
+    print(topics)
+    # for message in consumer:
+    #     data_dict = message.value
+    #     binary_data = base64.b64decode(data_dict['ImageData'])
+    #     # 바이너리 데이터를 처리하는 코드 작성
+    #
+    #     # 바이트 데이터를 OpenCV 이미지 객체로 변환
+    #     img = cv2.imdecode(np.frombuffer(binary_data, dtype=np.uint8), -1)
+    #     cv2.imshow('image', img)
+    #     cv2.waitKey(0)
+    #     cv2.destroyAllWindows()
+
+
 
     print("End!")
     # Close the Kafka producer connection
